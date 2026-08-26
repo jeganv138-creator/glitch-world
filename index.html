@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>GLITCH WORLD - 2D Adventure Game</title>
+  <meta name="description" content="Play Glitch World - an offline 2D adventure puzzle action browser game. Explore forest and military fortress levels, fight dynamic AI enemies, activate the glitch ability, and defeat the fortress boss.">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/game.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Cyber Grid & Scanline Atmosphere Overlays -->
+    <div class="cyber-grid"></div>
+    <div class="scanline-overlay"></div>
+
+    <!-- Main Game Canvas Container (1280x720 native resolution) -->
+    <div id="canvas-wrapper">
+      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+
+      <!-- UI Overlay Layer -->
+      <div id="ui-layer">
+
+        <!-- ========================================================== -->
+        <!-- 1. AUTHENTICATION SCREEN (LOGIN / REGISTER) -->
+        <!-- ========================================================== -->
+        <div id="auth-screen" class="screen">
+          <div class="glass-panel" style="width: 420px; max-width: 90vw; text-align: center;">
+            <h1 class="glitch-title glitch-text" style="font-size: 2.4rem;">GLITCH WORLD</h1>
+            <p class="subtitle" style="font-size: 0.9rem; margin-bottom: 20px;">2D ADVENTURE GAME</p>
+
+            <div class="tab-container" style="justify-content: center;">
+              <button id="tab-login" class="tab-btn active">SIGN IN</button>
+              <button id="tab-register" class="tab-btn">REGISTER</button>
+            </div>
+
+            <form id="auth-form">
+              <div class="form-group">
+                <label class="form-label" for="auth-username">Username</label>
+                <input type="text" id="auth-username" class="form-input" placeholder="Enter username..." autocomplete="off" required>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="auth-password">Password</label>
+                <input type="password" id="auth-password" class="form-input" placeholder="Enter password..." required>
+              </div>
+
+              <div id="confirm-password-group" class="form-group" style="display: none;">
+                <label class="form-label" for="auth-confirm-password">Confirm Password</label>
+                <input type="password" id="auth-confirm-password" class="form-input" placeholder="Confirm password...">
+              </div>
+
+              <button type="submit" id="auth-submit-btn" class="btn btn-primary" style="width: 100%; margin-top: 10px;">SIGN IN</button>
+            </form>
+
+            <p id="auth-toggle-text" style="margin-top: 18px; font-size: 0.85rem; color: var(--color-text-dim); cursor: pointer; text-decoration: underline;">
+              Don't have an account? Register now
+            </p>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- 2. HOME SCREEN -->
+        <!-- ========================================================== -->
+        <div id="home-screen" class="screen">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 10;">
+            <h1 class="glitch-title glitch-text">GLITCH WORLD</h1>
+            <p class="subtitle" style="letter-spacing: 3px;">2D ADVENTURE + ACTION + PUZZLE</p>
+            <p id="home-user-greeting" style="font-weight: 700; color: var(--color-primary); letter-spacing: 2px; font-size: 0.95rem; text-transform: uppercase;">
+              WELCOME BACK, PLAYER
+            </p>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: center; gap: 60px; margin-top: 10px; width: 100%; max-width: 800px;">
+            <!-- Live Animated Player Preview -->
+            <div class="character-preview-box float-idle">
+              <canvas id="previewCanvas" width="200" height="240"></canvas>
+            </div>
+
+            <!-- Home Action Buttons -->
+            <div style="display: flex; flex-direction: column; gap: 12px; width: 260px;">
+              <button id="home-btn-start" class="btn btn-primary">START GAME</button>
+              <button id="home-btn-continue" class="btn btn-primary" style="background: linear-gradient(135deg, #059669, #10b981);" disabled>CONTINUE GAME</button>
+              <button id="home-btn-settings" class="btn">SETTINGS</button>
+              <button id="home-btn-history" class="btn">HISTORY</button>
+              <button id="home-btn-about" class="btn">ABOUT</button>
+              <button id="home-btn-logout" class="btn btn-danger btn-sm">LOGOUT</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- 3. LEVEL SELECT SCREEN -->
+        <!-- ========================================================== -->
+        <div id="level-select-screen" class="screen">
+          <h2 class="glitch-title" style="font-size: 2.2rem; margin-bottom: 4px;">SELECT MISSION</h2>
+          <p class="subtitle">CHOOSE YOUR ADVENTURE</p>
+
+          <div class="level-select-grid">
+            <!-- Level 1 Card -->
+            <div id="level-card-1" class="level-card">
+              <span class="level-badge">MISSION 01</span>
+              <h3 class="level-card-title">ADVENTURE FOREST</h3>
+              <p class="level-card-desc">Explore lush platforms, avoid spike pits and fire traps, use glitch phasing, and find the hidden key.</p>
+              <span style="font-size: 0.8rem; color: var(--color-success); font-weight: 700;">DIFFICULTY: EASY → MEDIUM</span>
+            </div>
+
+            <!-- Level 2 Card -->
+            <div id="level-card-2" class="level-card locked">
+              <span class="level-badge hard">MISSION 02</span>
+              <h3 class="level-card-title">MILITARY BASE</h3>
+              <p class="level-card-desc">Infiltrate the military facility, engage tactical AI soldiers with your gun, unlock laser gates, and escape.</p>
+              <span style="font-size: 0.8rem; color: var(--color-warning); font-weight: 700;">DIFFICULTY: MEDIUM → HARD</span>
+              <div class="lock-overlay">
+                <span style="font-size: 1.5rem;">🔒</span>
+                <span>LOCKED</span>
+              </div>
+            </div>
+
+            <!-- Level 3 Card -->
+            <div id="level-card-3" class="level-card locked">
+              <span class="level-badge extreme">MISSION 03</span>
+              <h3 class="level-card-title">DARK FORTRESS</h3>
+              <p class="level-card-desc">Navigate rotating lasers and electric floors under dynamic lighting. Defeat the Fortress Commander Mini-Boss!</p>
+              <span style="font-size: 0.8rem; color: var(--color-secondary); font-weight: 700;">DIFFICULTY: VERY HARD</span>
+              <div class="lock-overlay">
+                <span style="font-size: 1.5rem;">🔒</span>
+                <span>LOCKED</span>
+              </div>
+            </div>
+          </div>
+
+          <button id="level-select-back-btn" class="btn btn-outline" style="margin-top: 10px;">&larr; BACK TO HOME</button>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- 4. SETTINGS SCREEN -->
+        <!-- ========================================================== -->
+        <div id="settings-screen" class="screen">
+          <div class="glass-panel" style="width: 500px; max-width: 90vw;">
+            <h2 class="glitch-title" style="font-size: 2rem; text-align: center; margin-bottom: 24px;">GAME SETTINGS</h2>
+
+            <div style="display: flex; flex-direction: column; gap: 18px;">
+              <!-- Sound Toggle -->
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 700; font-size: 1rem;">Sound Effects (SFX)</span>
+                <input type="checkbox" id="setting-sound" checked style="width: 22px; height: 22px; cursor: pointer;">
+              </div>
+
+              <!-- Music Toggle -->
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 700; font-size: 1rem;">Background Music (BGM)</span>
+                <input type="checkbox" id="setting-music" checked style="width: 22px; height: 22px; cursor: pointer;">
+              </div>
+
+              <!-- Vibration Toggle -->
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 700; font-size: 1rem;">Screen Vibration / Haptics</span>
+                <input type="checkbox" id="setting-vibration" checked style="width: 22px; height: 22px; cursor: pointer;">
+              </div>
+
+              <!-- Mobile Touch Overlay -->
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: 700; font-size: 1rem;">Force On-Screen Touch Controls</span>
+                <input type="checkbox" id="setting-mobile-controls" style="width: 22px; height: 22px; cursor: pointer;">
+              </div>
+
+              <!-- Volume Slider -->
+              <div style="margin-top: 6px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                  <span style="font-weight: 700; font-size: 0.9rem; color: var(--color-text-dim);">MASTER VOLUME</span>
+                  <span id="setting-volume-val" style="font-weight: 700; color: var(--color-primary);">70%</span>
+                </div>
+                <input type="range" id="setting-volume" min="0" max="100" value="70" style="width: 100%; cursor: pointer;">
+              </div>
+
+              <!-- Reset Data -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <span style="font-size: 0.85rem; color: var(--color-text-muted);">Reset Progression</span>
+                <button id="settings-clear-data-btn" class="btn btn-danger btn-sm">RESET ALL DATA</button>
+              </div>
+            </div>
+
+            <button id="settings-back-btn" class="btn btn-outline" style="width: 100%; margin-top: 24px;">&larr; BACK TO HOME</button>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- 5. ABOUT SCREEN -->
+        <!-- ========================================================== -->
+        <div id="about-screen" class="screen">
+          <div class="glass-panel" style="width: 640px; max-width: 90vw; max-height: 85vh; overflow-y: auto;">
+            <div style="text-align: center; margin-bottom: 16px;">
+              <h2 class="glitch-title" style="font-size: 2.2rem; margin-bottom: 2px;">GLITCH WORLD</h2>
+              <p class="subtitle" style="margin-bottom: 10px;">2D ADVENTURE + PUZZLE + ACTION</p>
+              
+              <div style="background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: var(--border-radius-md); padding: 10px 16px; display: inline-block; margin-bottom: 12px;">
+                <span style="font-size: 0.85rem; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">DEVELOPED BY:</span>
+                <div style="font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 2px;">ROHITH &amp; SUNRUTHI</div>
+              </div>
+            </div>
+
+            <div class="tab-container" style="justify-content: center; margin-bottom: 16px;">
+              <button id="about-tab-features" class="tab-btn active">FEATURES</button>
+              <button id="about-tab-controls" class="tab-btn">CONTROLS</button>
+            </div>
+
+            <!-- Features Panel -->
+            <div id="about-features-panel">
+              <p style="font-size: 0.9rem; color: var(--color-text-dim); line-height: 1.5; margin-bottom: 16px;">
+                Glitch World is an offline browser-based 2D adventure game where players explore hazardous levels, solve puzzles, activate cyber glitch energy, engage tactical AI soldiers, and defeat the fortress commander.
+              </p>
+              <ul style="list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.85rem;">
+                <li style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--color-primary);">◆</span> Pure HTML5 / Canvas 2D Engine</li>
+                <li style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--color-primary);">◆</span> Glitch Ability &amp; Wall Phasing</li>
+                <li style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--color-primary);">◆</span> Dynamic AI Soldiers with Vision</li>
+                <li style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--color-primary);">◆</span> Mini-Boss with 4 Attack Modes</li>
+                <li style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--color-primary);">◆</span> Web Audio Synthesizer &amp; Tracks</li>
+                <li style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--color-primary);">◆</span> Local Checkpoint &amp; Save System</li>
+                <li style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--color-primary);">◆</span> Responsive Touch &amp; PC Controls</li>
+                <li style="display: flex; align-items: center; gap: 8px;"><span style="color: var(--color-primary);">◆</span> Zero External APIs / 100% Offline</li>
+              </ul>
+            </div>
+
+            <!-- Controls Panel -->
+            <div id="about-controls-panel" style="display: none;">
+              <table style="width: 100%; font-size: 0.85rem; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <td style="padding: 6px 0; color: var(--color-accent); font-weight: 700;">A / D or &larr; / &rarr;</td>
+                  <td style="padding: 6px 0; color: var(--color-text);">Move Left / Right</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <td style="padding: 6px 0; color: var(--color-accent); font-weight: 700;">W / Space / &uarr;</td>
+                  <td style="padding: 6px 0; color: var(--color-text);">Jump (Double-tap for Double Jump)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <td style="padding: 6px 0; color: var(--color-accent); font-weight: 700;">Shift</td>
+                  <td style="padding: 6px 0; color: var(--color-text);">Sprint / Run</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <td style="padding: 6px 0; color: var(--color-accent); font-weight: 700;">Left Mouse Click</td>
+                  <td style="padding: 6px 0; color: var(--color-text);">Aim &amp; Shoot Weapon (Level 2+)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <td style="padding: 6px 0; color: var(--color-accent); font-weight: 700;">G</td>
+                  <td style="padding: 6px 0; color: var(--color-text);">Toggle Glitch Ability (Phase walls &amp; slow time)</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <td style="padding: 6px 0; color: var(--color-accent); font-weight: 700;">R</td>
+                  <td style="padding: 6px 0; color: var(--color-text);">Reload Weapon</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <td style="padding: 6px 0; color: var(--color-accent); font-weight: 700;">C / Ctrl</td>
+                  <td style="padding: 6px 0; color: var(--color-text);">Crouch / Dodge Roll</td>
+                </tr>
+                <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                  <td style="padding: 6px 0; color: var(--color-accent); font-weight: 700;">1 / 2</td>
+                  <td style="padding: 6px 0; color: var(--color-text);">Switch Weapon (Pistol / Rifle)</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: var(--color-accent); font-weight: 700;">ESC</td>
+                  <td style="padding: 6px 0; color: var(--color-text);">Pause Game</td>
+                </tr>
+              </table>
+            </div>
+
+            <button id="about-back-btn" class="btn btn-outline" style="width: 100%; margin-top: 20px;">&larr; BACK TO HOME</button>
+          </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- 6. HISTORY SCREEN -->
+        <!-- ========================================================== -->
+        <div id="history-screen" class="screen">
+          <div class="glass-panel" style="width: 900px; max-width: 95vw; max-height: 85vh; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+              <h2 class="glitch-title" style="font-size: 2rem; margin: 0;">RUN HISTORY</h2>
+              <div style="display: flex; gap: 12px;">
+                <input type="text" id="history-search-input" class="form-input" placeholder="Search by username..." style="width: 220px; padding: 8px 12px; font-size: 0.85rem;">
+                <button id="history-clear-btn" class="btn btn-danger btn-sm">CLEAR HISTORY</button>
+              </div>
+            </div>
+
+            <div class="history-table-container">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>Level</th>
+                    <th>Result</th>
+                    <th>Score</th>
+                    <th>Coins</th>
+                    <th>Enemies</th>
+                    <th>Play Time</th>
+                  </tr>
+                </thead>
+                <tbody id="history-table-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+              <div id="history-empty-state" style="display: none; padding: 30px; text-align: center; color: var(--color-text-dim);">
+                No run history recorded yet. Play a game to see stats here!
+              </div>
+            </div>
+
+            <button id="history-back-btn" class="btn btn-outline" style="align-self: flex-start; margin-top: 14px;">&larr; BACK TO HOME</button>
+          </div>
+        </div>
+
+      </div> <!-- End #ui-layer -->
+
+      <!-- ========================================================== -->
+      <!-- IN-GAME HUD OVERLAY -->
+      <!-- ========================================================== -->
+      <div id="hud-overlay">
+        <!-- Top HUD Bar -->
+        <div class="hud-top-bar">
+          <!-- Left: Player Health, Armor, Glitch Energy -->
+          <div class="hud-stats-group">
+            <div class="stat-bar-container">
+              <span class="stat-icon" style="color: #ef4444;">❤️</span>
+              <div class="stat-bar"><div id="hud-health-fill" class="stat-fill health" style="width: 100%;"></div></div>
+              <span id="hud-health-val" class="stat-value">100</span>
+            </div>
+            <div class="stat-bar-container">
+              <span class="stat-icon" style="color: #38bdf8;">🛡️</span>
+              <div class="stat-bar"><div id="hud-armor-fill" class="stat-fill armor" style="width: 0%;"></div></div>
+              <span id="hud-armor-val" class="stat-value">0</span>
+            </div>
+            <div class="stat-bar-container glitch-gauge-wrapper">
+              <span class="stat-icon" style="color: #c084fc;">⚡</span>
+              <div class="stat-bar"><div id="hud-glitch-fill" class="stat-fill glitch" style="width: 100%;"></div></div>
+              <span id="hud-glitch-val" class="stat-value">100%</span>
+            </div>
+          </div>
+
+          <!-- Center: Mission Objective & Key Indicator -->
+          <div class="hud-mission-box">
+            <span id="hud-level-title" class="mission-level-title">LEVEL 1 - ADVENTURE FOREST</span>
+            <div class="mission-objective">
+              <span id="hud-objective-text">Find the Hidden Key</span>
+              <span id="hud-key-badge" class="key-badge">KEY: MISSING</span>
+            </div>
+          </div>
+
+          <!-- Right: Coins, Score, Ammo, Pause Button -->
+          <div class="hud-right-group">
+            <div class="hud-item coins">🪙 <span id="hud-coins-val">0</span></div>
+            <div class="hud-item score">PTS: <span id="hud-score-val">0</span></div>
+            <div class="hud-item ammo">🔫 <span id="hud-ammo-val">12 / 0</span></div>
+            <button id="hud-pause-btn" class="hud-pause-btn" title="Pause Game">⏸</button>
+          </div>
+        </div>
+
+        <!-- Mini-Map -->
+        <div class="minimap-container">
+          <canvas id="minimapCanvas" width="180" height="50"></canvas>
+        </div>
+
+        <!-- Boss Health Bar -->
+        <div id="hud-boss-container" class="boss-health-container">
+          <div class="boss-name-row">
+            <span id="hud-boss-name" class="boss-name">FORTRESS COMMANDER</span>
+            <span id="hud-boss-rage-tag" class="boss-rage-tag">⚠️ RAGE MODE</span>
+          </div>
+          <div class="boss-health-bar">
+            <div id="hud-boss-fill" class="boss-health-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- Checkpoint Toast -->
+        <div id="checkpoint-toast" class="checkpoint-toast">CHECKPOINT ACTIVATED</div>
+      </div>
+
+      <!-- ========================================================== -->
+      <!-- MOBILE TOUCH CONTROLS -->
+      <!-- ========================================================== -->
+      <div id="mobile-controls">
+        <div class="mobile-dpad">
+          <button id="touch-left" class="mobile-btn">&larr;</button>
+          <button id="touch-right" class="mobile-btn">&rarr;</button>
+        </div>
+        <div class="mobile-actions">
+          <button id="touch-dodge" class="mobile-btn" style="background: rgba(148, 163, 184, 0.7); font-size: 0.8rem;">DODGE</button>
+          <button id="touch-reload" class="mobile-btn reload-btn">RELOAD</button>
+          <button id="touch-glitch" class="mobile-btn glitch-btn">GLITCH</button>
+          <button id="touch-shoot" class="mobile-btn shoot-btn">FIRE</button>
+          <button id="touch-jump" class="mobile-btn jump-btn">JUMP</button>
+        </div>
+      </div>
+
+      <!-- ========================================================== -->
+      <!-- MODALS: PAUSE, GAME OVER, LEVEL COMPLETE, VICTORY -->
+      <!-- ========================================================== -->
+      <!-- Pause Modal -->
+      <div id="pause-modal" class="overlay-modal">
+        <div class="modal-card">
+          <h2 class="modal-title pause">GAME PAUSED</h2>
+          <p style="color: var(--color-text-dim);">Take a breath, agent. Glitch World awaits.</p>
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+            <button id="pause-resume-btn" class="btn btn-primary">RESUME MISSION</button>
+            <button id="pause-restart-btn" class="btn">RESTART LEVEL</button>
+            <button id="pause-home-btn" class="btn btn-outline">RETURN TO HOME</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over Modal -->
+      <div id="gameover-modal" class="overlay-modal">
+        <div class="modal-card">
+          <h2 class="modal-title gameover">GAME OVER</h2>
+          <p style="color: var(--color-text-dim);">Your signal faded in the Glitch Matrix.</p>
+          <div class="stats-grid">
+            <div class="stats-item">
+              <span class="stats-item-label">Level Reached</span>
+              <span id="gameover-level" class="stats-item-value">Level 1</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">Score</span>
+              <span id="gameover-score" class="stats-item-value">0</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">Coins Collected</span>
+              <span id="gameover-coins" class="stats-item-value">0</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">Status</span>
+              <span class="stats-item-value" style="color: #ef4444;">DEFEATED</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <button id="gameover-respawn-btn" class="btn btn-primary">RESPAWN AT CHECKPOINT</button>
+            <button id="gameover-retry-btn" class="btn">RETRY LEVEL</button>
+            <button id="gameover-home-btn" class="btn btn-outline">RETURN TO HOME</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level Complete Modal -->
+      <div id="level-complete-modal" class="overlay-modal">
+        <div class="modal-card">
+          <h2 id="level-complete-title" class="modal-title" style="color: var(--color-success); text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);">LEVEL COMPLETE!</h2>
+          <p style="color: var(--color-text-dim);">Mission accomplished. Data retrieved.</p>
+          <div class="stats-grid">
+            <div class="stats-item">
+              <span class="stats-item-label">Score</span>
+              <span id="level-complete-score" class="stats-item-value">0</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">Coins</span>
+              <span id="level-complete-coins" class="stats-item-value">0</span>
+            </div>
+          </div>
+          <button id="level-complete-next-btn" class="btn btn-primary" style="background: linear-gradient(135deg, #059669, #10b981);">CONTINUE TO NEXT LEVEL &rarr;</button>
+        </div>
+      </div>
+
+      <!-- Victory Modal -->
+      <div id="victory-modal" class="overlay-modal">
+        <div class="modal-card" style="max-width: 580px;">
+          <h2 class="modal-title victory glitch-text">CONGRATULATIONS!</h2>
+          <p style="color: var(--color-accent); font-weight: 700; letter-spacing: 2px;">YOU COMPLETED GLITCH WORLD</p>
+          <div class="stats-grid">
+            <div class="stats-item">
+              <span class="stats-item-label">Final Score</span>
+              <span id="victory-score" class="stats-item-value" style="color: var(--color-accent);">0</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">Total Coins</span>
+              <span id="victory-coins" class="stats-item-value">0</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">Enemies Defeated</span>
+              <span id="victory-enemies" class="stats-item-value">0</span>
+            </div>
+            <div class="stats-item">
+              <span class="stats-item-label">Total Play Time</span>
+              <span id="victory-time" class="stats-item-value">00:00</span>
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--color-text-dim);">Developed with pride by Rohith &amp; Sunruthi</p>
+          <button id="victory-home-btn" class="btn btn-primary" style="margin-top: 10px;">RETURN TO HOME</button>
+        </div>
+      </div>
+
+    </div> <!-- End #canvas-wrapper -->
+
+    <!-- Toast Notifications Layer -->
+    <div id="toast-container"></div>
+  </div>
+
+  <!-- JavaScript Scripts (Loaded in dependency order) -->
+  <script src="js/storage.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/collision.js"></script>
+  <script src="js/glitch.js"></script>
+  <script src="js/weapon.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/enemy.js"></script>
+  <script src="js/boss.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/controls.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/home.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/about.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
