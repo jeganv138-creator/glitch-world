@@ -1,0 +1,121 @@
+/* GLITCH WORLD - Keyframe Animations & Cyber Effects */
+
+@keyframes borderScan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes glitchTitle {
+  0% {
+    text-shadow: 2px 0 var(--color-secondary), -2px 0 var(--color-primary);
+  }
+  25% {
+    text-shadow: -2px 0 var(--color-secondary), 2px 0 var(--color-primary);
+  }
+  50% {
+    text-shadow: 2px -2px var(--color-secondary), -2px 2px var(--color-primary);
+  }
+  75% {
+    text-shadow: -2px 2px var(--color-secondary), 2px -2px var(--color-primary);
+  }
+  100% {
+    text-shadow: 2px 0 var(--color-secondary), -2px 0 var(--color-primary);
+  }
+}
+
+.glitch-text {
+  animation: glitchTitle 3s infinite;
+  display: inline-block;
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(0, 240, 255, 0.7);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 1.5s infinite alternate ease-in-out;
+}
+
+@keyframes pulseRage {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 4px #ef4444);
+  }
+  100% {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 12px #f97316);
+  }
+}
+
+@keyframes floatIdle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.float-idle {
+  animation: floatIdle 3s infinite ease-in-out;
+}
+
+@keyframes rotateHazard {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes laserFlicker {
+  0%, 100% { opacity: 0.95; }
+  50% { opacity: 0.75; }
+  75% { opacity: 1; }
+}
+
+@keyframes screenShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-4px, 3px); }
+  40% { transform: translate(4px, -2px); }
+  60% { transform: translate(-3px, 1px); }
+  80% { transform: translate(2px, -3px); }
+}
+
+.screen-shake-active {
+  animation: screenShake 0.25s infinite;
+}
+
+/* Character Preview Box on Home Screen */
+.character-preview-box {
+  width: 220px;
+  height: 260px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, rgba(15, 18, 28, 0) 70%);
+}
+
+#previewCanvas {
+  width: 200px;
+  height: 240px;
+  display: block;
+}
+
+/* Confetti & Fireworks Canvas Overlay */
+#fxCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 60;
+}
